@@ -10,7 +10,7 @@ inputs:
   github_token:
     description: >
       GitHub token with 'contents: write' and 'pull-requests: read' permissions.
-      Typically passed as '${{ secrets.GITHUB_TOKEN }}'.
+      Typically passed as 'secrets.GITHUB_TOKEN'.
     required: true
 
   llm_api_key:
