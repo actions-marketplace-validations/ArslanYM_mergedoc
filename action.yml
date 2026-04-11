@@ -15,25 +15,25 @@ inputs:
 
   llm_api_key:
     description: >
-      API key for the LLM provider (Gemini, Anthropic, or OpenAI).
-      For the free tier, get a Gemini key at https://aistudio.google.com/apikey
+      API key for the LLM provider (OpenRouter, Gemini, Anthropic, or OpenAI).
+      For the free tier, get an OpenRouter key at https://openrouter.ai/settings/keys
       Store this as a repository secret.
     required: true
 
   llm_provider:
     description: >
       LLM provider to use. Supported values: 'auto' (detects from key format),
-      'gemini' (free), 'anthropic', 'openai'. When set to 'auto', the provider
-      is inferred from your API key prefix (sk- = OpenAI, sk-ant- = Anthropic,
-      otherwise Gemini).
+      'openrouter' (free models available), 'gemini', 'anthropic', 'openai'.
+      When set to 'auto', it looks at your API key prefix (sk-or- = OpenRouter,
+      sk-ant- = Anthropic, sk- = OpenAI, otherwise Gemini).
     required: false
     default: "auto"
 
   model_name:
     description: >
       Model identifier to use for generation.
-      Defaults to 'gemini-2.0-flash' (free), 'claude-sonnet-4-20250514' for Anthropic,
-      or 'gpt-4o' for OpenAI.
+      Defaults to 'openrouter/auto' (free, auto-selected), 'gemini-2.0-flash', 
+      'claude-sonnet-4-20250514' for Anthropic, or 'gpt-4o' for OpenAI.
     required: false
     default: ""
 
