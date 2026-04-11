@@ -1,4 +1,4 @@
-export type LLMProviderName = "anthropic" | "openai";
+export type LLMProviderName = "anthropic" | "openai" | "gemini";
 export interface Config {
     /** GitHub token with contents:write and pull-requests:read */
     githubToken: string;

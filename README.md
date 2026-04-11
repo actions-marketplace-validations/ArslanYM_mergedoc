@@ -4,7 +4,7 @@
 
 **AI-powered release documentation for GitHub.**
 
-Automatically generates categorized, beautifully formatted changelog entries from merged PR diffs — powered by Claude or GPT.
+Automatically generates categorized, beautifully formatted changelog entries from merged PR diffs — powered by Gemini *(free)*, Claude, or GPT.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 [![GitHub Action](https://img.shields.io/badge/GitHub-Action-2088FF?logo=github-actions&logoColor=white)](action.yml)
@@ -36,7 +36,9 @@ MergeDoc runs **after** your CI pipeline succeeds on a merge to `main`. It:
 
 Go to **Settings → Secrets and variables → Actions → New repository secret**:
 - Name: `LLM_API_KEY`
-- Value: Your Anthropic or OpenAI API key
+- Value: Your API key
+
+> **🆓 Free option:** Get a Gemini API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — no credit card required. Gemini 2.0 Flash is completely free with generous rate limits (15 req/min, 1M tokens/min).
 
 ### 2. Ensure your CI workflow is named "CI"
 
@@ -80,6 +82,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           llm_api_key: ${{ secrets.LLM_API_KEY }}
+          # Defaults to Gemini (free). For paid providers:
+          # llm_provider: "anthropic"
+          # llm_provider: "openai"
 ```
 
 ### 4. Merge a PR and watch it work! 🎉
@@ -92,8 +97,8 @@ jobs:
 |-------|----------|---------|-------------|
 | `github_token` | ✅ | — | GitHub token with `contents: write` and `pull-requests: read` |
 | `llm_api_key` | ✅ | — | API key for the LLM provider |
-| `llm_provider` | ❌ | `anthropic` | `anthropic` or `openai` |
-| `model_name` | ❌ | Auto | `claude-sonnet-4-20250514` (Anthropic) or `gpt-4o` (OpenAI) |
+| `llm_provider` | ❌ | `gemini` | `gemini` *(free)*, `anthropic`, or `openai` |
+| `model_name` | ❌ | Auto | `gemini-2.0-flash` (Gemini), `claude-sonnet-4-20250514` (Anthropic), `gpt-4o` (OpenAI) |
 | `max_diff_tokens` | ❌ | `80000` | Max token budget for diff context |
 | `changelog_path` | ❌ | `CHANGELOG.md` | Path to your changelog file |
 | `excluded_files` | ❌ | See below | Comma-separated glob patterns to exclude |
@@ -250,6 +255,7 @@ src/
 ├── llm/
 │   ├── types.ts              # Provider-agnostic interfaces
 │   ├── provider.ts           # Provider factory
+│   ├── gemini.ts             # Google Gemini provider (free tier)
 │   ├── anthropic.ts          # Anthropic (Claude) provider
 │   ├── openai.ts             # OpenAI (GPT) provider
 │   └── prompt.ts             # System & user prompt templates
