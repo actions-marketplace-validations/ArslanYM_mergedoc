@@ -22,9 +22,12 @@ inputs:
 
   llm_provider:
     description: >
-      LLM provider to use. Supported values: 'gemini' (free), 'anthropic', 'openai'.
+      LLM provider to use. Supported values: 'auto' (detects from key format),
+      'gemini' (free), 'anthropic', 'openai'. When set to 'auto', the provider
+      is inferred from your API key prefix (sk- = OpenAI, sk-ant- = Anthropic,
+      otherwise Gemini).
     required: false
-    default: "gemini"
+    default: "auto"
 
   model_name:
     description: >
