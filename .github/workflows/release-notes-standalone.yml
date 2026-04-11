@@ -1,0 +1,60 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# MergeDoc — Standalone Workflow (No CI Required)
+# ─────────────────────────────────────────────────────────────────────────────
+# Use this workflow if your repository does NOT have an existing CI pipeline.
+# MergeDoc will run immediately when a PR is merged into `main`.
+#
+# If you DO have CI and want MergeDoc to wait for it to pass,
+# use release-notes.yml (workflow_run trigger) instead.
+#
+# Prerequisites:
+#   1. Repository secret LLM_API_KEY must be set
+#      (Free option: get a Gemini key at https://aistudio.google.com/apikey)
+#   2. Settings > Actions > General > Workflow permissions = "Read and write"
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: "📝 Release Notes"
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  generate-release-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+
+    # Only run when the PR was actually merged (not just closed)
+    if: github.event.pull_request.merged == true
+
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run MergeDoc
+        id: mergedoc
+        uses: ArslanYM/mergedoc@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          llm_api_key: ${{ secrets.LLM_API_KEY }}
+          # llm_provider defaults to 'gemini' (free). Alternatives:
+          # llm_provider: "anthropic"
+          # llm_provider: "openai"
+
+      - name: Summary
+        if: steps.mergedoc.outputs.changelog_updated == 'true'
+        run: |
+          echo "### 📝 Changelog Updated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Files analyzed: ${{ steps.mergedoc.outputs.files_analyzed }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.mergedoc.outputs.release_notes }}" >> $GITHUB_STEP_SUMMARY
