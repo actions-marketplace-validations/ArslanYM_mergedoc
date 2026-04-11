@@ -4,7 +4,7 @@ import * as core from "@actions/core";
 // Configuration — parsed and validated action inputs
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type LLMProviderName = "anthropic" | "openai";
+export type LLMProviderName = "anthropic" | "openai" | "gemini";
 
 export interface Config {
   /** GitHub token with contents:write and pull-requests:read */
@@ -33,6 +33,7 @@ export interface Config {
 const DEFAULT_MODELS: Record<LLMProviderName, string> = {
   anthropic: "claude-sonnet-4-20250514",
   openai: "gpt-4o",
+  gemini: "gemini-2.0-flash",
 };
 
 /**
@@ -45,9 +46,9 @@ export function parseConfig(): Config {
 
   // --- Provider ---
   const rawProvider = core.getInput("llm_provider").toLowerCase().trim();
-  if (rawProvider !== "anthropic" && rawProvider !== "openai") {
+  if (rawProvider !== "anthropic" && rawProvider !== "openai" && rawProvider !== "gemini") {
     throw new Error(
-      `Invalid llm_provider "${rawProvider}". Must be "anthropic" or "openai".`
+      `Invalid llm_provider "${rawProvider}". Must be "anthropic", "openai", or "gemini".`
     );
   }
   const llmProvider: LLMProviderName = rawProvider;

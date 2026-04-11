@@ -7,6 +7,7 @@
 #   1. Your CI workflow file must have:   name: "CI"
 #      (the 'workflows' field below must match this name exactly)
 #   2. Repository secret LLM_API_KEY must be set
+#      (Free option: get a Gemini key at https://aistudio.google.com/apikey)
 #   3. Settings > Actions > General > Workflow permissions = "Read and write"
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -47,8 +48,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           llm_api_key: ${{ secrets.LLM_API_KEY }}
-          llm_provider: "anthropic"
-          model_name: "claude-sonnet-4-20250514"
+          # llm_provider defaults to 'gemini' (free). Alternatives:
+          # llm_provider: "anthropic"
+          # llm_provider: "openai"
 
       - name: Summary
         if: steps.mergedoc.outputs.changelog_updated == 'true'

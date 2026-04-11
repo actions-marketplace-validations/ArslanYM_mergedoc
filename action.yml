@@ -15,20 +15,22 @@ inputs:
 
   llm_api_key:
     description: >
-      API key for the LLM provider (Anthropic or OpenAI).
+      API key for the LLM provider (Gemini, Anthropic, or OpenAI).
+      For the free tier, get a Gemini key at https://aistudio.google.com/apikey
       Store this as a repository secret.
     required: true
 
   llm_provider:
     description: >
-      LLM provider to use. Supported values: 'anthropic', 'openai'.
+      LLM provider to use. Supported values: 'gemini' (free), 'anthropic', 'openai'.
     required: false
-    default: "anthropic"
+    default: "gemini"
 
   model_name:
     description: >
       Model identifier to use for generation.
-      Defaults to 'claude-sonnet-4-20250514' for Anthropic or 'gpt-4o' for OpenAI.
+      Defaults to 'gemini-2.0-flash' (free), 'claude-sonnet-4-20250514' for Anthropic,
+      or 'gpt-4o' for OpenAI.
     required: false
     default: ""
 
