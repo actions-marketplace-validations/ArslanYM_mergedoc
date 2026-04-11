@@ -4,7 +4,7 @@ import * as core from "@actions/core";
 // Configuration — parsed and validated action inputs
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type LLMProviderName = "anthropic" | "openai" | "gemini";
+export type LLMProviderName = "anthropic" | "openai" | "gemini" | "openrouter";
 
 export interface Config {
   /** GitHub token with contents:write and pull-requests:read */
@@ -34,7 +34,15 @@ const DEFAULT_MODELS: Record<LLMProviderName, string> = {
   anthropic: "claude-sonnet-4-20250514",
   openai: "gpt-4o",
   gemini: "gemini-2.0-flash",
+  openrouter: "openrouter/auto",
 };
+
+const VALID_PROVIDERS: LLMProviderName[] = [
+  "anthropic",
+  "openai",
+  "gemini",
+  "openrouter",
+];
 
 /**
  * Parses and validates all action inputs from the workflow environment.
@@ -53,11 +61,11 @@ export function parseConfig(): Config {
     // Auto-detect provider from key format
     llmProvider = detectProvider(llmApiKey);
     core.info(`🔍 Auto-detected LLM provider: ${llmProvider}`);
-  } else if (rawProvider === "anthropic" || rawProvider === "openai" || rawProvider === "gemini") {
+  } else if (isValidProvider(rawProvider)) {
     llmProvider = rawProvider;
   } else {
     throw new Error(
-      `Invalid llm_provider "${rawProvider}". Must be "auto", "gemini", "anthropic", or "openai".`
+      `Invalid llm_provider "${rawProvider}". Must be "auto", "openrouter", "gemini", "anthropic", or "openai".`
     );
   }
 
@@ -98,14 +106,25 @@ export function parseConfig(): Config {
 }
 
 /**
+ * Type guard for valid provider names.
+ */
+function isValidProvider(value: string): value is LLMProviderName {
+  return VALID_PROVIDERS.includes(value as LLMProviderName);
+}
+
+/**
  * Auto-detects the LLM provider from the API key format.
  *
  * Key patterns:
- *   - Anthropic: starts with "sk-ant-"
- *   - OpenAI:    starts with "sk-" (but not "sk-ant-")
- *   - Gemini:    everything else (Google AI keys are typically "AIza...")
+ *   - OpenRouter: starts with "sk-or-"
+ *   - Anthropic:  starts with "sk-ant-"
+ *   - OpenAI:     starts with "sk-" (but not "sk-ant-" or "sk-or-")
+ *   - Gemini:     everything else (Google AI keys are typically "AIza...")
  */
 function detectProvider(apiKey: string): LLMProviderName {
+  if (apiKey.startsWith("sk-or-")) {
+    return "openrouter";
+  }
   if (apiKey.startsWith("sk-ant-")) {
     return "anthropic";
   }

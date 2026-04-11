@@ -3,6 +3,7 @@ import type { LLMProviderName } from "../config";
 import { AnthropicProvider } from "./anthropic";
 import { OpenAIProvider } from "./openai";
 import { GeminiProvider } from "./gemini";
+import { OpenRouterProvider } from "./openrouter";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Provider Factory
@@ -25,6 +26,9 @@ export function createLLMProvider(
 
     case "gemini":
       return new GeminiProvider(apiKey, model);
+
+    case "openrouter":
+      return new OpenRouterProvider(apiKey, model);
 
     default: {
       const _exhaustive: never = providerName;
