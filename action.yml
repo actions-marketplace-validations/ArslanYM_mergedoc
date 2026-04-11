@@ -1,0 +1,67 @@
+name: "MergeDoc"
+description: "AI-powered release documentation — generates categorized changelog entries from merged PR diffs."
+author: "Arsalan Yaqoob Malik"
+
+branding:
+  icon: "file-text"
+  color: "purple"
+
+inputs:
+  github_token:
+    description: >
+      GitHub token with 'contents: write' and 'pull-requests: read' permissions.
+      Typically passed as '${{ secrets.GITHUB_TOKEN }}'.
+    required: true
+
+  llm_api_key:
+    description: >
+      API key for the LLM provider (Anthropic or OpenAI).
+      Store this as a repository secret.
+    required: true
+
+  llm_provider:
+    description: >
+      LLM provider to use. Supported values: 'anthropic', 'openai'.
+    required: false
+    default: "anthropic"
+
+  model_name:
+    description: >
+      Model identifier to use for generation.
+      Defaults to 'claude-sonnet-4-20250514' for Anthropic or 'gpt-4o' for OpenAI.
+    required: false
+    default: ""
+
+  max_diff_tokens:
+    description: >
+      Maximum token budget for the diff context sent to the LLM.
+      Diffs exceeding this will be chunked and summarized via map-reduce.
+    required: false
+    default: "80000"
+
+  changelog_path:
+    description: >
+      Relative path to the CHANGELOG.md file from the repository root.
+    required: false
+    default: "CHANGELOG.md"
+
+  excluded_files:
+    description: >
+      Comma-separated glob patterns for files to exclude from diff analysis.
+      Binary files, lockfiles, and generated code are excluded by default.
+    required: false
+    default: "package-lock.json,yarn.lock,pnpm-lock.yaml,*.generated.*,*.min.js,*.min.css"
+
+outputs:
+  release_notes:
+    description: "The generated release notes in Markdown format."
+
+  changelog_updated:
+    description: "Whether the CHANGELOG.md file was modified ('true' or 'false')."
+
+  files_analyzed:
+    description: "Number of diff files that were sent to the LLM for analysis."
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
