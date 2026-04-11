@@ -46,12 +46,20 @@ export function parseConfig(): Config {
 
   // --- Provider ---
   const rawProvider = core.getInput("llm_provider").toLowerCase().trim();
-  if (rawProvider !== "anthropic" && rawProvider !== "openai" && rawProvider !== "gemini") {
+
+  let llmProvider: LLMProviderName;
+
+  if (rawProvider === "auto" || rawProvider === "") {
+    // Auto-detect provider from key format
+    llmProvider = detectProvider(llmApiKey);
+    core.info(`🔍 Auto-detected LLM provider: ${llmProvider}`);
+  } else if (rawProvider === "anthropic" || rawProvider === "openai" || rawProvider === "gemini") {
+    llmProvider = rawProvider;
+  } else {
     throw new Error(
-      `Invalid llm_provider "${rawProvider}". Must be "anthropic", "openai", or "gemini".`
+      `Invalid llm_provider "${rawProvider}". Must be "auto", "gemini", "anthropic", or "openai".`
     );
   }
-  const llmProvider: LLMProviderName = rawProvider;
 
   // --- Model ---
   const rawModel = core.getInput("model_name").trim();
@@ -87,4 +95,22 @@ export function parseConfig(): Config {
     changelogPath,
     excludedFiles,
   };
+}
+
+/**
+ * Auto-detects the LLM provider from the API key format.
+ *
+ * Key patterns:
+ *   - Anthropic: starts with "sk-ant-"
+ *   - OpenAI:    starts with "sk-" (but not "sk-ant-")
+ *   - Gemini:    everything else (Google AI keys are typically "AIza...")
+ */
+function detectProvider(apiKey: string): LLMProviderName {
+  if (apiKey.startsWith("sk-ant-")) {
+    return "anthropic";
+  }
+  if (apiKey.startsWith("sk-")) {
+    return "openai";
+  }
+  return "gemini";
 }
