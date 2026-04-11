@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# TypeScript build output (ncc bundles to dist/ instead)
+lib/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Test coverage
+coverage/
+
+# NOTE: dist/ is intentionally NOT ignored.
+# GitHub Actions require the compiled dist/index.js to be committed.
