@@ -1,8 +1,21 @@
-## 🚀 MergeDoc AI Updates
+## 🤖 Auto-Detect LLM Provider from API Key
 
-This PR brings in several improvements and fixes following the initial implementation:
+### Problem
+Users who set an OpenAI or Anthropic API key but forget to explicitly set `llm_provider` hit a confusing error — their key gets sent to Google Gemini, which rejects it with `API_KEY_INVALID`.
 
-1. **Free Gemini Provider**: Added support for Google Gemini (`gemini-2.0-flash`) via the Generative Language API. This provides a completely free option (no credit cards required) and is now the default provider.
-2. **Standalone Workflow**: Added an alternate `.github/workflows/release-notes-standalone.yml` triggered on `pull_request: closed`. This is for repositories that do not have existing CI pipelines. The README has been clearly restructured to describe both `workflow_run` and standalone options.
-3. **Marketplace Naming Fix**: Renamed the Action to **MergeDoc AI** to satisfy GitHub Marketplace uniqueness rules.
-4. **Action execution fixes**: Removed the workflow expression (`${{ }}`) syntax in the `action.yml` description that was causing a GitHub Actions initialization failure (unrecognized named-value 'secrets').
+### Solution
+The `llm_provider` input now defaults to `"auto"` instead of `"gemini"`. When set to auto, the Action sniffs the API key prefix to detect the correct provider:
+
+| Key prefix | Detected provider |
+|---|---|
+| `sk-ant-` | **Anthropic** (Claude) |
+| `sk-` | **OpenAI** (GPT) |
+| Anything else | **Gemini** (free) |
+
+### What Changed
+- **`src/config.ts`**: Added `detectProvider()` function and `"auto"` as a valid provider value
+- **`action.yml`**: Changed default `llm_provider` from `"gemini"` to `"auto"`, updated description
+- **`dist/index.js`**: Rebuilt production bundle
+
+### Result
+Users can now just set their API key and the Action works — zero config needed beyond the key itself.
