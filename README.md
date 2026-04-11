@@ -40,15 +40,18 @@ Go to **Settings → Secrets and variables → Actions → New repository secret
 
 > **🆓 Free option:** Get a Gemini API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — no credit card required. Gemini 2.0 Flash is completely free with generous rate limits (15 req/min, 1M tokens/min).
 
-### 2. Ensure your CI workflow is named "CI"
+### 2. Create the release notes workflow
 
-Your existing CI workflow file (e.g., `.github/workflows/ci.yml`) must have:
+Pick the option that matches your project:
 
-```yaml
-name: "CI"   # ← MergeDoc triggers on this exact name
-```
+<details>
+<summary><strong>Option A — You have a CI pipeline</strong> (recommended)</summary>
 
-### 3. Create the release notes workflow
+<br>
+
+MergeDoc runs **after** your CI workflow (build, test, lint) passes. Release notes are only generated for green builds.
+
+**Prerequisite:** Your CI workflow file must have `name: "CI"` (the trigger matches this exact name).
 
 Create `.github/workflows/release-notes.yml`:
 
@@ -57,7 +60,7 @@ name: "📝 Release Notes"
 
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["CI"]       # Must match your CI workflow's name exactly
     types: [completed]
     branches: [main]
 
@@ -87,7 +90,49 @@ jobs:
           # llm_provider: "openai"
 ```
 
-### 4. Merge a PR and watch it work! 🎉
+</details>
+
+<details>
+<summary><strong>Option B — No CI pipeline</strong> (simpler setup)</summary>
+
+<br>
+
+MergeDoc runs **immediately** when a PR is merged — no CI dependency needed.
+
+Create `.github/workflows/release-notes.yml`:
+
+```yaml
+name: "📝 Release Notes"
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  generate-release-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: ArslanYM/mergedoc@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          llm_api_key: ${{ secrets.LLM_API_KEY }}
+```
+
+</details>
+
+### 3. Merge a PR and watch it work! 🎉
 
 ---
 
